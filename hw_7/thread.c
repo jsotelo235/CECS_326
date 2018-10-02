@@ -6,20 +6,31 @@
 #include <sys/wait.h>	/* Needed for wait function*/
 #include <pthread.h>    /* Needed for making threds*/
 
-
-/* Procedure function */
-void *childThread(void *ptr);
-
 /* Global Variables */
 int sum;
-int i;
-int input_char = 0;
-int th_identifier;
-pthread_t th;		// thread
-pthread_attr_t ta;	// thread attributes
+int input_char;
+//int i;
+
+/* Procedure Function*/
+void *childThread(void *arg)
+{ 
+  int i;
+  for(i = 0; i < 10; i++)
+  {
+    sum += i; 
+    input_char = getchar();
+    printf("2nd pthread_create() sum is: %2i %2c\n", sum, input_char);
+    sleep(2);
+    fflush(stdout);
+  }
+}
 
 int main (int argc, char* argv[]) 
 {
+  int i;
+  pthread_t th;        // thread
+  pthread_attr_t ta;   // thread attributes
+
   // thread needs to be told it's attributes
   // initialize the attributes using pthread_attr_t variable
   (void) pthread_attr_init(&ta);
@@ -33,39 +44,23 @@ int main (int argc, char* argv[])
   sleep(5);
 
   // Create a thread to run a procedure
-  th_identifier = pthread_create(&th, &ta, (void * (*)(void *))childThread, NULL);
+  pthread_create(&th, &ta, (void * (*)(void *))childThread, NULL);
   
+  for(i = 0; i < 10; i++)
+  {
+    sum += i; 
+    input_char = getchar();
+    printf("1st pthread_create() sum is: %2i %2c\n", sum, input_char);
+    sleep(2);
+    fflush(stdout);
+  }
 
   if(argc > 1)
   {
    wait(0);
   }
-  else
-  {
-   return 0;
-  }
-
- pthread_exit(NULL);
 };
 
 
 
-void *childThread(void *ptr)
-{ 
- // int i;
-  for(i = 0; i < 10; i++)
-  {
-    sum += i; 
-    input_char = getchar();
-    if(th_identifier) 
-    {
-      fprintf(stderr, "Error-pthread_create() return code: %d\n",th_identifier);
-      exit(EXIT_FAILURE);
-    }
-   
-    printf("pthread_create() sum is: %2i %2c\n", sum, input_char);
-    sleep(2);
-    fflush(stdout);
-  }
- return NULL;
-}
+
