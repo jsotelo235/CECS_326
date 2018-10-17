@@ -32,33 +32,38 @@ int main(int argc, char* argv[])
 
  int semID;			 // semaphore id
  key_t writeKey;	         // read key 
- //union wait waitstatus;
+ union wait waitstatus;
 
  writeKey  = ftok("Readers", 'a');
 
  semID = semget(writeKey,  4, IPC_CREAT | READ_WRITE); 
 
- printf("Reads semaphore id: %i\n", semID);
+ printf("Reads semaphore id: %i\n\n", semID);
 
  semctl(semID, 0, SETVAL, 1);
  semctl(semID, 1, SETVAL, 1);
-
+ 
  for(int i = 0; i < 5; i++)
  { 
   OpList[0] = Wait[0];		// lock reader
   OpList[1] = Wait[1];		// lock writer
   semop(semID, OpList, 2);
+
   printf("Writing\n");
   sleep(4);
   printf("Done writing\n");
+  sleep(8);
   
   OpList[0] = Signal[1];	 // unlock writer
   OpList[1] = Signal[0];	 // unlock reader
   semop(semID, OpList, 2);
 
-  sleep(8);
   printf("\n");
   fflush(stdout);
  }
+ 
+ semctl(semID, 0, IPC_RMID, 0);
+ semctl(semID, 1, IPC_RMID, 0);
+ printf("DONE\n");
  return 0;
 }

@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
  semID = semget(readKey,  4, IPC_CREAT | READ_WRITE); 
 
- printf("Reads semaphore id: %i\n", semID);
+ printf("Reads semaphore id: %i\n\n", semID);
  
  semctl(semID, 0, SETVAL, 1);
  semctl(semID, 2, SETVAL, 1);
@@ -83,5 +83,10 @@ int main(int argc, char* argv[])
   semop(semID, OpList, 1);	// perform the operation
   fflush(stdout);
  }
+ 
+ semctl(semID, 0, IPC_RMID, 0);
+ semctl(semID, 1, IPC_RMID, 0);
+ semctl(semID, 2, IPC_RMID, 0);
+ printf("DONE\n");
  return 0;
 }
