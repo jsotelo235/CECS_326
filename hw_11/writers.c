@@ -34,15 +34,38 @@ int main(int argc, char* argv[])
  key_t writeKey;	         // read key 
  union wait waitstatus;
 
- writeKey  = ftok("Readers", 'a');
-
- semID = semget(writeKey,  4, IPC_CREAT | READ_WRITE); 
-
- printf("Reads semaphore id: %i\n\n", semID);
-
- semctl(semID, 0, SETVAL, 1);
- semctl(semID, 1, SETVAL, 1);
+ writeKey  = ftok("test", 'q');
  
+ if((semID = semget(writeKey, 4, IPC_CREAT | IPC_EXCL | READ_WRITE)) != -1) {
+  semctl(semID, 0, SETVAL, 1);
+  semctl(semID, 1, SETVAL, 1);
+  semctl(semID, 2, SETVAL, 1);
+  semctl(semID, 3, SETVAL, 1);
+ }
+ else
+ {
+  semID = semget(writeKey,4, READ_WRITE);  
+ }
+
+ printf("Write semaphore id: %i\n\n", semID);
+
+ int temp;
+
+ temp = semctl(semID, 0, GETVAL, 1);
+
+ printf("Value sema-0: %d \n", temp);
+
+ temp = semctl(semID, 1, GETVAL, 1);
+
+ printf("Value sema-1: %d \n", temp);
+
+ temp = semctl(semID, 2, GETVAL, 1);
+
+ printf("Value sema-2: %d \n", temp);
+
+ temp = semctl(semID, 3, GETVAL, 1);
+
+ printf("Value sema-3: %d \n", temp);
  for(int i = 0; i < 5; i++)
  { 
   OpList[0] = Wait[0];		// lock reader
@@ -51,19 +74,16 @@ int main(int argc, char* argv[])
 
   printf("Writing\n");
   sleep(4);
-  printf("Done writing\n");
-  sleep(8);
-  
+  printf("Done writing\n");  
+
   OpList[0] = Signal[1];	 // unlock writer
   OpList[1] = Signal[0];	 // unlock reader
   semop(semID, OpList, 2);
 
   printf("\n");
+  sleep(8);
   fflush(stdout);
  }
  
- semctl(semID, 0, IPC_RMID, 0);
- semctl(semID, 1, IPC_RMID, 0);
- printf("DONE\n");
  return 0;
 }

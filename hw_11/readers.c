@@ -33,30 +33,38 @@ int main(int argc, char* argv[])
  int semID;			 // semaphore id
  key_t readKey;			 // read key 
  union wait waitstatus;
- int counter = 0;
 
- readKey  = ftok("Readers", 'a');
+ readKey  = ftok("test", 'q');
 
- semID = semget(readKey,  4, IPC_CREAT | READ_WRITE); 
+ if((semID = semget(readKey, 4, IPC_CREAT | IPC_EXCL | READ_WRITE)) != -1) {
+  semctl(semID, 0, SETVAL, 1);
+  semctl(semID, 1, SETVAL, 1);
+  semctl(semID, 2, SETVAL, 1);
+  semctl(semID, 3, SETVAL, 1);
+ }
+ else
+ {
+  semID = semget(readKey, 4, READ_WRITE);  
+ }
+ 
 
  printf("Reads semaphore id: %i\n\n", semID);
  
- semctl(semID, 0, SETVAL, 1);
- semctl(semID, 2, SETVAL, 1);
-
  for(int i = 0; i < 5; i++)
  {
-  OpList[0] = Wait[0];	  // lock reader
-  OpList[1] = Wait[2];	  // lock counter 
+
+  OpList[0] = Wait[0];	   // lock reader
+  OpList[1] = Wait[2];	   // lock counter 
   semop(semID, OpList, 2); // perform the operations
 
-  if(counter == 0)
+  if(semctl(semID, 2, GETVAL, 1) == 0)
   {
    OpList[0] = Wait[1];		// lock writer
    semop(semID, OpList, 1);	// perform the operation
   }
 
-  counter++;			// increment count
+  OpList[0] = Signal[2];        // counter
+  semop(semID, OpList, 1);	// increment counter
 
   OpList[0] = Signal[2];	// unlock counter
   OpList[1] = Signal[0];	// unlock reader
@@ -65,15 +73,13 @@ int main(int argc, char* argv[])
   printf("Reading\n");
   sleep(2);
   printf("Done reading\n");
-  sleep(4);
   printf("\n");
- 
-  OpList[0] = Wait[2];		// lock counter
-  semop(semID, OpList, 1);	// perform the operation
-  
-  counter--;			// decrement counter
 
-  if(counter == 0)
+  OpList[0] = Wait[2];		// lock counter
+  OpList[1] = Wait[2];		// get counter ready to decrement
+  semop(semID, OpList, 2);      // perform lock and decrement
+
+  if(semctl(semID, 2, GETVAL, 1) == 0)
   {
    OpList[0] = Signal[1];	// unlock writer
    semop(semID, OpList, 1);	// perform the operation
@@ -81,12 +87,9 @@ int main(int argc, char* argv[])
 
   OpList[0] = Signal[2];	// unlock counter
   semop(semID, OpList, 1);	// perform the operation
+
+  sleep(4);
   fflush(stdout);
  }
- 
- semctl(semID, 0, IPC_RMID, 0);
- semctl(semID, 1, IPC_RMID, 0);
- semctl(semID, 2, IPC_RMID, 0);
- printf("DONE\n");
  return 0;
 }
