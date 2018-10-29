@@ -48,7 +48,7 @@ int main ()
 
   product = multiplicand * multiplier;
   
-  buf.mtype = 69;
+  buf.mtype = 2;
   buf.message = product;
  
   msgsnd(myqueue, (struct msgbuf *)&buf, 10, 0);

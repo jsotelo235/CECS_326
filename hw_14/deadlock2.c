@@ -35,8 +35,8 @@ int main () {
   for (i = 0; i < 5 ; i++ ) 
   {
     /* initialize the wait, signal and count for each semaphore */
-    Waits[i].sem_op = -1;
-    Signals[i].sem_op = 1;
+    Waits[i].sem_op = -1; 
+    Signals[i].sem_op = 1;	
     Waits[i].sem_num = i;
     Signals[i].sem_num = i;
     Waits[i].sem_flg = SEM_UNDO;
@@ -46,19 +46,26 @@ int main () {
 
   /* fork 5 philosophers, 5 children for i = 0, 1, 2, 3, 4 */
   /* The parent is not a philosopher, it just does the wait */
-  for (i = 0; i < 5 ; i++ ) {
+  for (i = 0; i < 5 ; i++ ) 
+  {
     pid = fork();
+
     /* rest of loop is child, parent continues
        arround the loop to do fork child */
-    if ( 0 == pid ) {
+    if ( 0 == pid ) 
+    {
       /* each child is a philosopher */
       printf("Philosopher %d starting\n", i);
-      for ( eat_round = 0; eat_round < 4; eat_round++ ) {
+
+      for ( eat_round = 0; eat_round < 4; eat_round++ ) 
+      {
         printf("Philosopher %d grabbing left fork\n", i);
         semop(semid, &Waits[i], 1);
-        printf("Sleep is the cause here\n");
-        sleep(1);
+        //sleep(1);
+        //printf("i before semop: %d\n", i);
         semop(semid, &Waits[(i+1) % 5], 1);
+        sleep(1);
+        //printf("i after semop: %d\n", i);
         printf("Philosopher %d grabbing right fork\n", i);
         sleep(1);
         printf("Philosopher %d eat, round %d\n", i, eat_round);
@@ -67,14 +74,18 @@ int main () {
         semop(semid, &Signals[i], 1);
         semop(semid, &Signals[(i+1) % 5], 1);
       }
+ 
       printf("Philosopher %d exiting\n", i);
       return 0;
     }
+
   }
   /* Only the parent gets here, it waits for all the children to finish */
-  for (i = 0; i < 5 ; i++ ) {
+  for (i = 0; i < 5 ; i++ ) 
+  { printf("Parent\n");
     wait3(&waitstatus,0,NULL);
   }
+
   /* All the children have exited, the parent now removes the semaphore */
   semctl(semid, 0, IPC_RMID, 0);
   return 0;

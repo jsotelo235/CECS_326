@@ -60,8 +60,8 @@ int main ()
     printf("error in msgsnd %s \n", strerror(errno) );
    }
   
-   buf.mtype = 69;
-   msgrcv(myqueue, (struct msgbuf *)&buf, 10, 69 , 0);
+   buf.mtype = 2;
+   msgrcv(myqueue, (struct msgbuf *)&buf, 10, 2 , 0);
    product = buf.message;
 
    printf("Product is: %d\n", product);
