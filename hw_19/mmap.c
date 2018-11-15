@@ -43,33 +43,37 @@ int main(int argc, char *argv[])
   fileSize = buf.st_size;
 
 
-  // file is ready to be mmapped
-  addr = mmap(0, fileSize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0); 
-  
-  // On success, mmap() returns a ptr to the mapped area
-  // On failure, it returns a -1
-  if(addr == MAP_FAILED)
+  for(int i = 0; i < 3; i++)
   {
-    perror("mmap error");
-    close(fd);
-    exit(EXIT_FAILURE);
-  }
+    // file is ready to be mmapped
+    addr = mmap(0, fileSize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0); 
   
-  printf("Enter the position in the file do you want to change: ");
-  scanf("%d", &position);
-
-  printf("Enter the new letter for that position: "); 
-  scanf(" %c", &newLetter);
+    // On success, mmap() returns a ptr to the mapped area
+    // On failure, it returns a -1
+    if(addr == MAP_FAILED)
+    {
+      perror("mmap error");
+      close(fd);
+      exit(EXIT_FAILURE);
+    }
   
-  addr[position] = newLetter;
+    printf("Enter the position in the file do you want to change: ");
+    scanf("%d", &position);
 
-  // On success, munmap() returns 0.
-  // On failure, it returns -1
-  if(munmap(addr, fileSize) < 0)
-  {
-    perror("mumap error");
-    close(fd);
-    exit(EXIT_FAILURE);
+    printf("Enter the new letter for that position: "); 
+    scanf(" %c", &newLetter);
+    printf("\n");
+ 
+    addr[position] = newLetter;
+
+    // On success, munmap() returns 0.
+    // On failure, it returns -1
+    if(munmap(addr, fileSize) < 0)
+    {
+      perror("mumap error");
+      close(fd);
+      exit(EXIT_FAILURE);
+    }
   }
    
   close(fd);

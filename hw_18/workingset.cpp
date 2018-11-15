@@ -10,45 +10,34 @@
 */
 void workingset(int n, int w, int pages[])
 {
-  std::vector<int> vec;
-
   /* This is the header line as shown in the homework assignment */
-  printf("Time \t Size \t Set\n");
+  printf("Time \t Size \t  Set\n");
 
-  /* DUMMY SAMPLE CODE, REMOVE! */
-  /* This print shows how to compute the loop bounds. */
-  //printf("Do from %d to %d\n",w-1,n-1);
-
-  /* This print confirms the parameter pass, it shows you how to line
-    things up with the headers.*/
-  printf("%d \t %d \t ", (int)vec.size(), w);
-
-  for(int time= w-1; time < n; time++)
+  for(int time = w-1; time < n; time++)
   {
-    for(int i = 0; i < time; i++)
+    std::vector<int> vec;
+    for(int i = time; i < time+w; i++)
     {
-      // using iterator to store the position of the searched element
-      std::vector<int>::iterator findVec;
-      
-      // using std::find to find the element in the given range of numbers 
-      findVec = std::find(vec.begin(), vec.end(), pages[time]);
-
-      if( findVec != vec.end() )
+      if( (std::find(vec.begin(), vec.end(), pages[i])) != vec.end() )
       {
         // do nothing
       }
       else
       {
-        vec.push_back(pages[time]);
-      }      
+	if(i < n)
+	 vec.push_back(pages[i]);
+      }
     }
-  }
 
-  for(int i = 0; i <  w; i++)
-  {
-    std::cout << " " << vec.at(i);
-  }
-  printf("\n");
+   printf("%d \t %d \t ", time, (int)vec.size());
+
+   for(int i = 0; i < vec.size(); i++)
+   {
+     printf(" %d", vec.at(i));
+   }
+   printf("\n");
+ }
+ printf("\n");
 };
 
 int main()

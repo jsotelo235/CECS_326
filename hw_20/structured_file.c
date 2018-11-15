@@ -7,7 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 int CarFile;
+
 struct CarEntry
 {
   char Name[24];
@@ -15,11 +17,6 @@ struct CarEntry
   int timeToRepair;
 };
 
-/*
-HOMEWORK STARTER FILE
-You need to add the bodies of the functions (to the end of this file).
-Do not modify the main or change the prototypes.
-*/
 
 /*
 Write empty records into the file.
@@ -51,13 +48,18 @@ int main()
   int numRecordsToClear;
   char user_input[64];
   struct CarEntry CarData;
+  
   /* set up the student file */
   CarFile = open("cardata.bin",O_RDWR|O_CREAT,S_IRUSR | S_IWUSR);
-  /* 3 records */
+ 
+  //printf("Size of carEntry: %d\n", sizeof(struct CarEntry));
+
+ /* 3 records */
   while (1)
   {
     printf("a)clear file, b)write record, c)read record, d) enter Data, q)quit\n");
     fgets(user_input,sizeof(user_input)-1,stdin);
+
     switch (user_input[0])
     {
       case 'a':
@@ -65,14 +67,16 @@ int main()
         fgets(user_input,sizeof(user_input)-1,stdin);
         numRecordsToClear = atoi(user_input);
         clearFile(numRecordsToClear);
+        printf("\n");
         break;
       case 'b':
         printf("Current Data is: %s cost %f time %d\n",CarData.Name,
-          CarData.costToRepair,CarData.timeToRepair);
+        CarData.costToRepair,CarData.timeToRepair);
         printf("Where should I write the data? ");
         fgets(user_input,sizeof(user_input)-1,stdin);
         whereTo = atoi(user_input);
         writeRecord(&CarData,whereTo);
+        printf("\n");
         break;
       case 'c':
         printf("From where should I read the data? ");
@@ -81,6 +85,7 @@ int main()
         readRecord(&CarData,whereTo);
         printf("Current Data is now: %s cost %f time %d\n",CarData.Name,
           CarData.costToRepair,CarData.timeToRepair);
+        printf("\n");
         break;
       case 'd':
         printf("Name>");
@@ -97,6 +102,7 @@ int main()
 
         printf("Current Data is now: %s cost %f time %d\n",CarData.Name,
           CarData.costToRepair,CarData.timeToRepair);
+        printf("\n");
         break;
       case 'q':
         close(CarFile);
@@ -105,8 +111,49 @@ int main()
         break;
       default:
         printf("Unrecognized option\n");
+        printf("\n");
         break;
     }
   }
   return 0;
 };
+
+
+/*
+Write empty records into the file.
+numRecords is the number of records to write.
+*/
+void clearFile(int numRecords)
+{ 
+  char buffer[numRecords*sizeof(struct CarEntry)];
+
+  for(int i = 0; i < numRecords*sizeof(struct CarEntry); i++)
+  {
+    buffer[i] = '\0';
+  }
+
+  lseek(CarFile, 0, SEEK_SET);
+  write(CarFile, buffer, sizeof(struct CarEntry)*numRecords);
+}
+
+void writeRecord(struct CarEntry *record,int where)
+{
+  if(lseek(CarFile, where*sizeof(struct CarEntry), SEEK_SET) < 0)
+  {
+    perror("lseek failed");
+  }
+  write(CarFile, record, sizeof(struct CarEntry));
+}
+
+void readRecord(struct CarEntry *record,int where)
+{
+  if(lseek(CarFile, where*sizeof(struct CarEntry), SEEK_SET) < 0)
+  {
+    perror("lseek failed");
+  }
+  
+  read(CarFile, record, sizeof(struct CarEntry));
+  
+  printf ("Name: %s  Cost to repair: %f  Time to repair: %d\n",
+           record->Name, record->costToRepair, record->timeToRepair);
+}
