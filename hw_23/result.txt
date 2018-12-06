@@ -1,5 +1,5 @@
-a) 870776960 312 checksum.txt
-   checksum in hex: 33E70080
+a) 2454623773 311 checksum.txt
+   checksum in hex: 0x924E961D
 
-b) 1843582736 312 checksum.txt
-   checksum in hex: 6DE2D710
+b) 3427484045 312 checksum.txt
+   checksum in hex: 0xCC4B48D
