@@ -12,10 +12,13 @@ int main(int argc, char* argv[])
   char key[64];
   char block[64];
   int i;
+
+  // generate a key of 64 bits
   for (i=0 ; i < 64 ; i++)
   {
     key[i] = i%2;
   }
+
   for (i = 0 ; i < 64 ; i += 4)
   {
     block[i] = 0;
@@ -23,6 +26,7 @@ int main(int argc, char* argv[])
     block[i+2] = 1;
     block[i+3] = 1;
   }
+
   /* print original */
   for (i=0 ; i < 64 ; i++)
   {
